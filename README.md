@@ -163,7 +163,7 @@ Localized semantic modifications while strictly maintaining global layout and ba
 
 | Model | Backbone | Params | gFID ↓ | LP Acc ↑ | Checkpoint |
 |:------|:---------|:------:|:------:|:--------:|:----------:|
-| MUSE-1B | InternVL3-1B + SANA-0.6B | 496M | 3.08 | 85.2 | Coming Soon |
+| MUSE-1B | InternVL3-1B + SANA-0.6B | 496M | 3.08 | 85.2 | [Huggingface](https://huggingface.co/yangpanqi/MUSE-1B/tree/main) |
 | MUSE-3B | InternVL3-2B + SANA-1.6B | — | — | — | Coming Soon |
 
 ---
