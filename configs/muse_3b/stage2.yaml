@@ -1,0 +1,112 @@
+experiment:
+    project: "muse"
+    name: "muse_3b_stage2_semantic_injection"
+    output_dir: "outputs/muse_3b_stage2"
+
+    # Stage 2 Narrative: Semantic Injection
+    max_train_examples: 40_000_000
+    save_every: 7_500
+    eval_every: 7_500
+    generate_every: 2_500
+    log_every: 50
+    log_grad_norm_every: 500
+
+    resume: True
+
+    # [CRITICAL] Must load Stage 1 trained weights!
+    init_weight: "${CHECKPOINT_DIR}/muse_3b_stage1/checkpoint-75000/ema_model/pytorch_model.bin"
+
+model:
+    name: MUSE_ViT
+    latent_dim: 32
+
+    # Model Paths (3B uses InternVL3-2B backbone)
+    mllm_path: "${CHECKPOINT_DIR}/InternVL3-2B"
+    dc_ae_path: "${CHECKPOINT_DIR}/SANA1-1"
+    dinov3_path: "${CHECKPOINT_DIR}/dinov3-vith-plus"
+
+    # Stage 2: CLIP Text Encoder for ITC
+    text_encoder_path: "${CHECKPOINT_DIR}/CLIP-ViT-L-14-laion2B-s32B-b82K"
+    text_embed_dim: 768
+
+    # MUSE Stage 2 Settings
+    use_dino_structure: True
+    use_active_itc: True
+    grad_scale: 0.5
+    unfreeze_layers: 0
+
+    vq_model:
+        quantize_mode: vae
+        finetune_decoder: True
+
+losses:
+    name: MUSE_Loss
+
+    # Discriminator (delayed)
+    discriminator_start: 1_000_000
+    discriminator_factor: 1.0
+    discriminator_weight: 0.1
+    lecam_regularization_weight: 0.001
+
+    # Reconstruction
+    reconstruction_loss: "l2"
+    reconstruction_weight: 1.0
+    perceptual_loss: "lpips-convnext_s-1.0-0.1"
+    perceptual_weight: 1.1
+
+    # MUSE Stage 2 Loss Weights
+    weight_topology: 5.0
+    weight_itc: 0.2
+    weight_structure: 0.0
+    quantizer_weight: 1.0
+    kl_weight: 0.000001
+
+dataset:
+    params:
+        train_shards_path_or_url: [
+            "${DATA_DIR}/BLIP3o-Pretrain-Short-Caption/*.tar",
+            "${DATA_DIR}/BLIP3o-Pretrain-Long-Caption/*.tar",
+            "${DATA_DIR}/BLIP3o-Pretrain-JourneyDB/*.tar"
+        ]
+        sample_ratio: [0.2, 0.6, 0.2]
+        eval_shards_path_or_url: "${DATA_DIR}/imagenet-val/imagenet-val-{000000..00002}.tar"
+        num_workers_per_gpu: 12
+        dataset_with_class_label: False
+        dataset_with_text_label: True
+
+    preprocessing:
+        resize_shorter_edge: 224
+        crop_size: 224
+        random_crop: True
+        random_flip: True
+        normalize_mean: [0.485, 0.456, 0.406]
+        normalize_std: [0.229, 0.224, 0.225]
+        imagenet_norm: True
+
+optimizer:
+    name: adamw
+    params:
+        learning_rate: 2.0e-4
+        discriminator_learning_rate: 2.0e-4
+        beta1: 0.9
+        beta2: 0.999
+        weight_decay: 1e-4
+
+lr_scheduler:
+    scheduler: "cosine"
+    params:
+        learning_rate: ${optimizer.params.learning_rate}
+        warmup_steps: 5_000
+        end_lr: 1e-5
+
+training:
+    gradient_accumulation_steps: 1
+    per_gpu_batch_size: 32
+    mixed_precision: "bf16"
+    enable_tf32: True
+    enable_wandb: False
+    use_ema: True
+    seed: 42
+    max_train_steps: 75_000         # 3B needs more steps
+    num_generated_images: 8
+    max_grad_norm: 1.0

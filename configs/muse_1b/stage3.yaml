@@ -1,0 +1,115 @@
+experiment:
+    project: "muse"
+    name: "muse_1b_stage3_synergistic_tuning"
+    output_dir: "outputs/muse_1b_stage3"
+
+    # Stage 3 Narrative: Synergistic Tuning (The Grand Unification)
+    # Goal: End-to-end co-optimization with full parameter unfreezing.
+    # Leverage gradient orthogonality so Semantic (ITC) and Structure (Topo) jointly guide Pixel Reconstruction.
+    max_train_examples: 40_000_000
+    save_every: 5_000
+    eval_every: 5_000
+    generate_every: 2_500
+    log_every: 50
+    log_grad_norm_every: 500
+
+    resume: True
+
+    # [CRITICAL] Must load Stage 2 trained weights!
+    init_weight: "${CHECKPOINT_DIR}/muse_1b_stage2/checkpoint-50000/ema_model/pytorch_model.bin"
+
+model:
+    name: MUSE_ViT
+    latent_dim: 32
+
+    # Model Paths
+    mllm_path: "${CHECKPOINT_DIR}/InternVL3-1B"
+    dc_ae_path: "${CHECKPOINT_DIR}/SANA1-1"
+    dinov3_path: "${CHECKPOINT_DIR}/dinov3-vith-plus"
+
+    # Text Encoder for Active Anchoring
+    text_encoder_path: "${CHECKPOINT_DIR}/CLIP-ViT-L-14-laion2B-s32B-b82K"
+    text_embed_dim: 768
+
+    # MUSE Stage 3 Settings
+    use_dino_structure: True
+    use_active_itc: True
+    grad_scale: 1.0            # [KEY] Full gradient flow (Spectral Filtering)
+    unfreeze_layers: -1        # [KEY] Full unfreeze
+
+    vq_model:
+        quantize_mode: vae
+        finetune_decoder: True
+
+losses:
+    name: MUSE_Loss
+
+    # Discriminator: immediate start for texture realism
+    discriminator_start: 0
+    discriminator_factor: 1.0
+    discriminator_weight: 0.5      # Higher weight for texture enhancement
+    lecam_regularization_weight: 0.001
+
+    # Reconstruction
+    reconstruction_loss: "l2"
+    reconstruction_weight: 1.0
+    perceptual_loss: "lpips-convnext_s-1.0-0.1"
+    perceptual_weight: 2.0
+
+    # MUSE Stage 3 Loss Weights — Synergistic Balance
+    weight_topology: 0.2          # Reduced: acts as regularization
+    weight_itc: 0.1               # Reduced: anchor against catastrophic forgetting
+    weight_structure: 0.0
+    quantizer_weight: 1.0
+    kl_weight: 0.000001
+
+dataset:
+    params:
+        train_shards_path_or_url: [
+            "${DATA_DIR}/BLIP3o-Pretrain-Short-Caption/*.tar",
+            "${DATA_DIR}/BLIP3o-Pretrain-Long-Caption/*.tar",
+            "${DATA_DIR}/BLIP3o-Pretrain-JourneyDB/*.tar"
+        ]
+        sample_ratio: [0.2, 0.6, 0.2]
+        eval_shards_path_or_url: "${DATA_DIR}/imagenet-val/imagenet-val-{000000..00002}.tar"
+        num_workers_per_gpu: 12
+        dataset_with_class_label: False
+        dataset_with_text_label: True
+
+    preprocessing:
+        resize_shorter_edge: 224
+        crop_size: 224
+        random_crop: True
+        random_flip: True
+        normalize_mean: [0.485, 0.456, 0.406]
+        normalize_std: [0.229, 0.224, 0.225]
+        imagenet_norm: True
+
+optimizer:
+    name: adamw
+    params:
+        learning_rate: 5.0e-5          # [CRITICAL] Low LR for fine-tuning
+        backbone_lr_scale: 0.5         # Differential LR for backbone
+        discriminator_learning_rate: 1.0e-4
+        beta1: 0.9
+        beta2: 0.999
+        weight_decay: 1e-4
+
+lr_scheduler:
+    scheduler: "cosine"
+    params:
+        learning_rate: ${optimizer.params.learning_rate}
+        warmup_steps: 1_000
+        end_lr: 1e-6
+
+training:
+    gradient_accumulation_steps: 1
+    per_gpu_batch_size: 32
+    mixed_precision: "bf16"
+    enable_tf32: True
+    enable_wandb: False
+    use_ema: True
+    seed: 42
+    max_train_steps: 50_000
+    num_generated_images: 8
+    max_grad_norm: 1.0
