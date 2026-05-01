@@ -17,7 +17,7 @@
 </div>
 
 <div align="center">
-  <img src="asst/Figure1.pdf" width="95%"/>
+  <img src="asst/Figure1.jpg" width="95%"/>
 </div>
 
 > **TL;DR**: Unified visual tokenizers suffer from *Manifold Misalignment* — pixel gradients and semantic gradients destructively interfere. MUSE resolves this via **Topological Orthogonality**, physically decoupling structure into attention topology and semantics into feature values. Result: **gFID 3.08** (matching generation specialists) + **Linear Probe 85.2%** (surpassing its own teacher InternViT-300M at 82.5%).
@@ -47,7 +47,7 @@ Unlike prior unified tokenizers trapped in a zero-sum game, MUSE achieves **genu
 
 ### 🧠 Key Insight: Gradient Orthogonality
 
-<img src="asst/Figure3_v3.pdf" width="100%"/>
+<img src="asst/Figure3_v3.jpg" width="100%"/>
 
 Semantic gradients naturally occupy **W_V** while structural gradients cluster in **W_Q, W_K**. MUSE respects this inductive bias, eliminating destructive interference.
 
@@ -62,7 +62,7 @@ Semantic gradients naturally occupy **W_V** while structural gradients cluster i
 ### Manifold Misalignment & Topological Orthogonality
 
 <div align="center">
-  <img src="asst/Figure2.pdf" width="95%"/>
+  <img src="asst/Figure2.jpg" width="95%"/>
 </div>
 
 <br>
@@ -128,7 +128,7 @@ When integrated into a full UMM pipeline, MUSE enables high-quality generation a
 <summary><b>Attention Maps — MUSE vs. Baselines</b></summary>
 
 <div align="center">
-  <img src="asst/Appendix_Figure2.pdf" width="80%"/>
+  <img src="asst/Appendix_Figure2.jpg" width="80%"/>
 </div>
 
 MUSE faithfully mirrors the precise, ground-truth-like attention patterns of the DINO teacher, while VQGAN scatters across textures and UniLIP produces overly diffuse maps.
@@ -139,7 +139,7 @@ MUSE faithfully mirrors the precise, ground-truth-like attention patterns of the
 <summary><b>Text-to-Image Generation</b></summary>
 
 <div align="center">
-  <img src="asst/Appendix_T2I.pdf" width="90%"/>
+  <img src="asst/Appendix_T2I.jpg" width="90%"/>
 </div>
 
 Complex attribute binding, accurate spatial reasoning, and realistic textures across diverse prompts.
@@ -150,7 +150,7 @@ Complex attribute binding, accurate spatial reasoning, and realistic textures ac
 <summary><b>Image Editing</b></summary>
 
 <div align="center">
-  <img src="asst/Appendix_Figure3.pdf" width="90%"/>
+  <img src="asst/Appendix_Figure3.jpg" width="90%"/>
 </div>
 
 Localized semantic modifications while strictly maintaining global layout and background consistency.
