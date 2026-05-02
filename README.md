@@ -336,7 +336,7 @@ If you find MUSE useful in your research, please consider citing:
 @inproceedings{muse2026,
   title     = {MUSE: Resolving Manifold Misalignment in Visual Tokenization 
                via Topological Orthogonality},
-  author    = {Anonymous},
+  author    = {Panqi Yang, Haodong Jing, Jiahao Chao, Tingyan Xiang, Li Lin, Yao Hu, Yang Luo, Yongqiang Ma},
   booktitle = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
   year      = {2026}
 }
