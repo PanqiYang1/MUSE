@@ -4,7 +4,7 @@
 
 <p>
   <a href="#"><img alt="ICML 2026" src="https://img.shields.io/badge/ICML-2026-blue.svg"/></a>
-  <a href="#"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2506.xxxxx-b31b1b.svg"/></a>
+  <a href="#"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2605.05646-b31b1b.svg"/></a>
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache%202.0-green.svg"/></a>
   <a href="#"><img alt="Python 3.10+" src="https://img.shields.io/badge/Python-3.10%2B-3776AB.svg"/></a>
   <a href="#"><img alt="PyTorch 2.0+" src="https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg"/></a>
